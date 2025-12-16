@@ -12,44 +12,35 @@ const port = process.env.PORT || 4000;
 // Connect DB
 connectDB();
 
-// Allowed origins (local + vercel)
-const allowedOrigins = ["http://localhost:5173"];
-
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS CONFIG (PRODUCTION SAFE)
+// ✅ CORS CONFIG (SINGLE & CORRECT)
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (Postman, server-to-server)
+      // Allow requests with no origin (Postman, mobile apps, server-to-server)
       if (!origin) return callback(null, true);
 
-      // allow localhost
-      if (allowedOrigins.includes(origin)) {
+      // Allow localhost
+      if (origin === "http://localhost:5173") {
         return callback(null, true);
       }
 
-      // allow ALL vercel domains
+      // Allow ALL Vercel domains
       if (origin.endsWith(".vercel.app")) {
         return callback(null, true);
       }
 
+      // Block others
       return callback(new Error("Not allowed by CORS"));
     },
-    credentials: true,
+    credentials: true, // Cookies allow karne ke liye
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-// Preflight (IMPORTANT)
-app.options("*", cors());
-
-// ✅ ADD CORS HERE ⬇⬇⬇
-app.use(cors({ origin: true, credentials: true }));
-app.options("*", cors());
 
 // Routes
 app.get("/", (req, res) => {
