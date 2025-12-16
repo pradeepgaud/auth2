@@ -47,6 +47,10 @@ app.use(
 // Preflight (IMPORTANT)
 app.options("*", cors());
 
+// ✅ ADD CORS HERE ⬇⬇⬇
+app.use(cors({ origin: true, credentials: true }));
+app.options("*", cors());
+
 // Routes
 app.get("/", (req, res) => {
   res.send("Backend Connected Successfully!");
