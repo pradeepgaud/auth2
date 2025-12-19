@@ -2,33 +2,32 @@ import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import AppContext from "../Context/AppContext";
-
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const EmailVerify = () => {
   axios.defaults.withCredentials = true;
-  const { backendUrl, getUserData, isLoggedin, userData } =
-    useContext(AppContext);
+
+  // 🔧 FIX: backendUrl hardcoded
+  const backendUrl = "https://auth2-2.onrender.com";
+
+  const { getUserData, isLoggedin, userData } = useContext(AppContext);
 
   const navigate = useNavigate();
   const inputRefs = React.useRef([]);
 
-  // Move to next input
   const handleInput = (e, index) => {
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1].focus();
     }
   };
 
-  // Handle backspace
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && e.target.value === "" && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
-  // Handle paste
   const handlepaste = (e) => {
     e.preventDefault();
     const paste = e.clipboardData.getData("text").trim();
@@ -44,17 +43,15 @@ const EmailVerify = () => {
     });
   };
 
-  // Submit OTP
   const onSumbitHandler = async (e) => {
     e.preventDefault();
-
     try {
-      const otpArray = inputRefs.current.map((e) => e.value);
-      const otp = otpArray.join("");
+      const otp = inputRefs.current.map((e) => e.value).join("");
 
       const { data } = await axios.post(
-        backendUrl + "/api/auth/verify-account",
-        { otp }
+        `${backendUrl}/api/auth/verify-account`,
+        { otp },
+        { withCredentials: true }
       );
 
       if (data.success) {
@@ -70,7 +67,9 @@ const EmailVerify = () => {
   };
 
   useEffect(() => {
-    isLoggedin && userData && userData.isAccountVerified && navigate("/");
+    if (isLoggedin && userData && userData.isAccountVerified) {
+      navigate("/");
+    }
   }, [isLoggedin, userData]);
 
   return (
@@ -99,9 +98,9 @@ const EmailVerify = () => {
             .fill(0)
             .map((_, index) => (
               <input
+                key={index}
                 type="text"
                 maxLength="1"
-                key={index}
                 required
                 className="w-12 h-12 bg-[#333A5C] text-white text-center text-xl rounded-md"
                 ref={(el) => (inputRefs.current[index] = el)}
@@ -118,8 +117,6 @@ const EmailVerify = () => {
           Verify email
         </button>
       </form>
-
-
     </div>
   );
 };
