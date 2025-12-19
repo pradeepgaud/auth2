@@ -1,12 +1,11 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
 
 const AppContext = createContext();
 
-export const AppContextProvider = (props) => {
+export const AppContextProvider = ({ children }) => {
 
-  // ✅ DIRECT BACKEND URL
+  // ✅ HARD CODE BACKEND URL (FIXES undefined)
   const backendUrl = "https://auth2-2.onrender.com";
 
   const [isLoggedin, setIsLoggedin] = useState(false);
@@ -47,18 +46,18 @@ export const AppContextProvider = (props) => {
     getAuthState();
   }, []);
 
-  const value = {
-    backendUrl,
-    isLoggedin,
-    setIsLoggedin,
-    userData,
-    setUserData,
-    getUserData,
-  };
-
   return (
-    <AppContext.Provider value={value}>
-      {props.children}
+    <AppContext.Provider
+      value={{
+        backendUrl,
+        isLoggedin,
+        setIsLoggedin,
+        userData,
+        setUserData,
+        getUserData,
+      }}
+    >
+      {children}
     </AppContext.Provider>
   );
 };
