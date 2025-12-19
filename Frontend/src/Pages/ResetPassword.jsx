@@ -1,12 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
-import AppContext from "../Context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const ResetPassword = () => {
-  const { backendUrl } = useContext(AppContext);
+
+  // ✅ BACKEND URL DIRECTLY ADDED
+  const backendUrl = "https://auth2-2.onrender.com";
+
   axios.defaults.withCredentials = true;
 
   const navigate = useNavigate();
@@ -20,9 +22,7 @@ const ResetPassword = () => {
 
   // Move to next input
   const handleInput = (e, index) => {
-    // allow only digits (optional)
     e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 1);
-
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1].focus();
     }
@@ -65,7 +65,6 @@ const ResetPassword = () => {
       data.success ? toast.success(data.message) : toast.error(data.message);
       if (data.success) {
         setIsEmailSend(true);
-        // focus first OTP input after small delay
         setTimeout(() => inputRefs.current[0]?.focus(), 100);
       }
     } catch (error) {
@@ -73,7 +72,7 @@ const ResetPassword = () => {
     }
   };
 
-  // Collect OTP from inputs and show password form
+  // Collect OTP from inputs
   const onSubmitOtp = (e) => {
     e.preventDefault();
 
@@ -87,14 +86,13 @@ const ResetPassword = () => {
     setOtp(joinedOtp);
     seIsOtpSubmited(true);
 
-    // focus new password field after showing it
     setTimeout(() => {
       const pwdInput = document.querySelector("#new-password-input");
       pwdInput?.focus();
     }, 100);
   };
 
-  // Submit new password to backend
+  // Submit new password
   const onSubmitPassword = async (e) => {
     e.preventDefault();
     if (!newPassword || newPassword.length < 6) {
@@ -105,11 +103,7 @@ const ResetPassword = () => {
     try {
       const { data } = await axios.post(
         `${backendUrl}/api/auth/reset-password`,
-        {
-          email,
-          otp,
-          newPassword,
-        }
+        { email, otp, newPassword }
       );
 
       data.success ? toast.success(data.message) : toast.error(data.message);
@@ -130,7 +124,6 @@ const ResetPassword = () => {
         className="absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer"
       />
 
-      {/* enter email id */}
       {!isEmailSend && (
         <form
           onSubmit={onSubmitEmail}
@@ -162,7 +155,6 @@ const ResetPassword = () => {
         </form>
       )}
 
-      {/* otp input form */}
       {!isOtpSubmited && isEmailSend && (
         <form
           onSubmit={onSubmitOtp}
@@ -182,8 +174,6 @@ const ResetPassword = () => {
               .map((_, index) => (
                 <input
                   type="text"
-                  inputMode="numeric"
-                  pattern="\d*"
                   maxLength="1"
                   key={index}
                   required
@@ -195,27 +185,21 @@ const ResetPassword = () => {
               ))}
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full"
-          >
+          <button className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full">
             Submit
           </button>
         </form>
       )}
 
-      {/* enter new password */}
       {isOtpSubmited && isEmailSend && (
         <form
           onSubmit={onSubmitPassword}
           className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm"
         >
-          <h1 className="text-white text-2xl font-semibold text-center mb-4 ">
+          <h1 className="text-white text-2xl font-semibold text-center mb-4">
             New Password
           </h1>
-          <p className="text-center mb-6 text-indigo-300 ">
-            Enter the new password below
-          </p>
+
           <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
             <img src={assets.lock_icon} alt="" className="w-3 h-3" />
             <input
@@ -228,6 +212,7 @@ const ResetPassword = () => {
               required
             />
           </div>
+
           <button className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full mt-3">
             Submit
           </button>
